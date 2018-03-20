@@ -4,30 +4,44 @@ package main
 #include "main_c.h"
 */
 import "C"
-import "time"
+import (
+	"time"
+	"context"
+)
 
 func main() {}
 
+func elog(str string) {
+	C.elog_log(C.CString(str))
+}
+
 //export BackgroundWorkerMain
 func BackgroundWorkerMain(args C.Datum) {
-	C.elog_log(C.CString("Starting GoBackgroundWorker"))
+	elog("Starting GoBackgroundWorker")
 
+	ticker := time.NewTicker(5 * time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		for C.get_got_sigterm() == 0 {
-			time.Sleep(time.Second * 5)
-			C.elog_log(C.CString("Hello World 5"));
+			time.Sleep(time.Second)
+		}
+		elog("got sig term")
+		cancel()
+	}()
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				elog("Hello world")
+			}
 		}
 	}()
 
-	for C.get_got_sigterm() == 0 {
-		time.Sleep(time.Second * 3)
-		C.elog_log(C.CString("Hello World 3"));
-	}
+	<-ctx.Done()
 
-	if C.get_got_sigterm() != 0 {
-		C.elog_log(C.CString("got sigterm"));
-	}
-
-	C.elog_log(C.CString("Finishing GoBackgroundWorker"))
+	elog("Finishing GoBackgroundWorker")
 }
 
