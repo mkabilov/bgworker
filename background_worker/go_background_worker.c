@@ -76,10 +76,15 @@ background_main(Datum main_arg)
 	/* We're now ready to receive signals */
 	BackgroundWorkerUnblockSignals();
 
-	golib_path = psprintf("%s/%s", pkglib_path, go_shared_lib);
+	golib_path = (char *) palloc(strlen(pkglib_path) + 1 +
+								   strlen(go_shared_lib) + 1);
 
-    elog(DEBUG1, "loading \"%s\"", golib_path);
+	join_path_components(golib_path, pkglib_path, go_shared_lib);
+    elog(DEBUG1, "loading go shared lib \"%s\"", golib_path);
+
 	handle = pg_dlopen(golib_path);
+	pfree(golib_path);
+
 	entrypt = (bgworker_main_type) pg_dlsym(handle, "BackgroundWorkerMain");
 	entrypt(main_arg);
 	pg_dlclose(handle);
