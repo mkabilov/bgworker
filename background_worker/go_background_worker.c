@@ -76,8 +76,9 @@ background_main(Datum main_arg)
 	/* We're now ready to receive signals */
 	BackgroundWorkerUnblockSignals();
 
-	golib_path = psprintf("%s%s", pkglib_path, go_shared_lib);
+	golib_path = psprintf("%s/%s", pkglib_path, go_shared_lib);
 
+    elog(DEBUG1, "loading \"%s\"", golib_path);
 	handle = pg_dlopen(golib_path);
 	entrypt = (bgworker_main_type) pg_dlsym(handle, "BackgroundWorkerMain");
 	entrypt(main_arg);
