@@ -1,2 +1,2 @@
 # bgworker
-PostgreSQL background worker in go experiments
+Experiments with PostgreSQL background worker written in golang 
