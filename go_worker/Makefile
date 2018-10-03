@@ -1,5 +1,5 @@
 GO ?= $(shell which go)
-PG_CONFIG = pg_config
+PG_CONFIG ?= pg_config
 PG_INCLUDE := $(shell $(PG_CONFIG) --includedir-server)
 PG_PKGLIB := $(shell $(PG_CONFIG) --pkglibdir)
 INSTALL_BIN = $(shell which install)
